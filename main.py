@@ -2,6 +2,7 @@ import requests
 import configparser
 import mysql.connector
 import sys
+import time
 
 def insert_row(mydb,question_id,tags,view_count,answer_count,score,created,is_answered):
     mycursor = mydb.cursor()
@@ -21,6 +22,8 @@ HOSTNAME = conf['CONFIG']['host']
 USERNAME = conf['CONFIG']['user']
 PASSWORD = conf['CONFIG']['password']
 DATABASE = conf['CONFIG']['database']
+API_KEY = conf['CONFIG']['key']
+
 mydb = mysql.connector.connect(
   host=HOSTNAME,
   user=USERNAME,
@@ -28,17 +31,26 @@ mydb = mysql.connector.connect(
   database=DATABASE
 )
 
-url = 'https://api.stackexchange.com/2.3/questions?fromdate=1669766400&order=desc&sort=activity&site=stackoverflow'
+url = f'https://api.stackexchange.com/2.3/questions?fromdate=1669766400&order=desc&sort=activity&site=stackoverflow&pagesize=100&key={API_KEY}&page='
 
-response = requests.get(url)
-response = response.json()
+print(url)
+has_more = True
+page = 1
+while has_more:
+    response = requests.get(url+str(page))
+    response = response.json()
+    print(f"Fetching page number: {page}")
+    for item in response['items']:
+        question_id = item['question_id']
+        tags = '|'.join(item['tags'])
+        view_count = item['view_count']
+        answer_count = item['answer_count']
+        score = item['score']
+        created = item['creation_date']
+        is_answered = item['is_answered']
+        insert_row(mydb,question_id,tags,view_count,answer_count,score,created,is_answered)
+    has_more = response['has_more']
+    print("Sleeping")
+    time.sleep(1)
 
-for item in response['items']:
-    question_id = item['question_id']
-    tags = item['tags']
-    view_count = item['view_count']
-    answer_count = item['answer_count']
-    score = item['score']
-    created = item['creation_date']
-    is_answered = item['is_answered']
-    insert_row(mydb,question_id,tags,view_count,answer_count,score,created,is_answered)
+print("Successfully loading the data")
