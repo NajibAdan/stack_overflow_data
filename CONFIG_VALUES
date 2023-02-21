@@ -1,0 +1,6 @@
+[CONFIG]
+host=hostname
+user=myusername
+password=mypassword
+database=database
+key=so_key
