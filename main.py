@@ -13,7 +13,7 @@ def insert_row(mydb,question_id,tags,view_count,answer_count,score,created,is_an
 
 conf = configparser.ConfigParser()
 try:
-    conf.read('secret_values.txt')
+    conf.read('CONFIG_VALUES')
 except Exception as e:
     print('Could not read the configuration file:' + str(e))
     sys.exit()
@@ -50,7 +50,11 @@ while has_more:
         is_answered = item['is_answered']
         insert_row(mydb,question_id,tags,view_count,answer_count,score,created,is_answered)
     has_more = response['has_more']
-    print("Sleeping")
-    time.sleep(1)
+    if 'backoff' in response:
+        sleep = response['backoff']
+    else:
+        sleep = 0.5
+    print(f'Sleeping for {sleep}')
+    time.sleep(sleep)
 
-print("Successfully loading the data")
+print("Successfully loaded the data")
