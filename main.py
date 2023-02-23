@@ -31,9 +31,7 @@ mydb = mysql.connector.connect(
   database=DATABASE
 )
 
-url = f'https://api.stackexchange.com/2.3/questions?fromdate=1669766400&order=desc&sort=activity&site=stackoverflow&pagesize=100&key={API_KEY}&page='
-
-print(url)
+url = f'https://api.stackexchange.com/2.3/questions?fromdate=1656633600&todate=1675209600&order=asc&sort=activity&site=stackoverflow&pagesize=100&key={API_KEY}&page='
 has_more = True
 page = 1
 while has_more:
@@ -51,7 +49,7 @@ while has_more:
         insert_row(mydb,question_id,tags,view_count,answer_count,score,created,is_answered)
     has_more = response['has_more']
     if 'backoff' in response:
-        sleep = response['backoff']
+        sleep = response['backoff'] +0.5 # Just to add an extra time to sleep to avoid being banned
     else:
         sleep = 0.5
     print(f'Sleeping for {sleep}')
