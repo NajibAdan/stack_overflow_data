@@ -37,6 +37,8 @@ def main(conf):
     scraper.scrap()
 
     print("Successfully loaded the data")
+    conn.close()
+    
 if __name__ == "__main__":
     conf = configparser.ConfigParser()
     try:
