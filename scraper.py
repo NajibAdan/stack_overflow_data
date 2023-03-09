@@ -10,9 +10,10 @@ class Scraper():
             self.URL = url + f'&key={self.API_KEY}&page='
     def insert_row(self,question_id,tags,view_count,answer_count,score,created,is_answered):
         mycursor = self.conn.cursor()
-        insert_sql = f"""INSERT INTO `questions` (question_id,tags,view_count,answer_count,score,created,is_answered) 
-                        VALUES ({question_id},'{' '.join(tags)}',{view_count},{answer_count},{score},'{created}','{is_answered}')"""
-        mycursor.execute(insert_sql)
+        insert_sql = """INSERT INTO questions 
+                        (question_id,tags,view_count,answer_count,score,created,is_answered) 
+                        VALUES (%s,%s,%s,%s,%s,%s,%s);"""
+        mycursor.execute(insert_sql,(question_id,tags,view_count,answer_count,score,created,is_answered))
         self.conn.commit()
     
     def write_to_file(data,filename):
@@ -55,3 +56,5 @@ class Scraper():
             print(f'Sleeping for {sleep}')
             time.sleep(sleep)
             page += 1
+            has_more = False
+            break
